@@ -27,7 +27,7 @@ class KeyRequest(BaseModel):
     password: str
 
 def get_redis_connection(db: int):
-    return redis.Redis(host='localhost', port=6379, db=db)
+    return redis.Redis(host='host.docker.internal', port=6379, db=db)
 
 def validate_password(password: str):
     if password != API_PASSWORD:
