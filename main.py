@@ -26,6 +26,10 @@ class KeyRequest(BaseModel):
     db: int
     password: str
 
+class DbRequest(BaseModel):
+    db: int
+    password: str
+
 def get_redis_connection(db: int):
     return redis.Redis(host='host.docker.internal', port=6379, db=db)
 
@@ -76,6 +80,16 @@ async def delete_key(key_request: KeyRequest):
             raise HTTPException(status_code=404, detail="Key not found")
         r.delete(key_request.key)
         return {"message": f"Key deleted successfully from database {key_request.db}"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/dbsize/")
+async def get_dbsize(db_request: DbRequest):
+    validate_password(db_request.password)
+    try:
+        r = get_redis_connection(db_request.db)
+        dbsize = r.dbsize()
+        return {"db": db_request.db, "dbsize": dbsize}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
